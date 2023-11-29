@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">PivotReader</string>
+    <string name="channel_name">feed_updater</string>
+    <string name="channel_description">Fetches new articles and send according notifications</string>
+</resources>
