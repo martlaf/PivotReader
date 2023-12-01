@@ -15,7 +15,7 @@ import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -48,7 +48,14 @@ import java.util.concurrent.TimeUnit
 @Composable
 fun FeedScreen(navController: NavHostController){
     val viewModel: FeedViewModel = viewModel(factory=FeedViewModel.Factory)
-    Scaffold(topBar = { AppBar() }) { innerPadding ->
+
+    val activity = LocalContext.current as Activity
+    requestPermissions(activity,
+        arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+        0,
+    )
+
+    Scaffold(topBar = { AppBar(navController) }) { innerPadding ->
         Surface(modifier=Modifier.padding(innerPadding)) {
             Column {
                 NotifierButton()
@@ -69,11 +76,10 @@ fun NotifierButton() {
     val application = LocalContext.current.applicationContext as Application
     val activity = LocalContext.current as Activity
     Button(onClick= {
-//        ActivityCompat.requestPermissions(MainActivity.this, String[]{android.permission.POST_NOTIFICATIONS}, 1);
 
         requestPermissions(activity,
             arrayOf(Manifest.permission.POST_NOTIFICATIONS),
-            1,
+            0,
         )
         val workManager = WorkManager.getInstance(application)
         val myWorkRequestBuilder = OneTimeWorkRequestBuilder<NotifierWorker>()
@@ -89,14 +95,6 @@ fun NotifierButton() {
         Text("HELP!!")
     }
 }
-//private fun checkPermission(permission: String, requestCode: Int) {
-//        if (ContextCompat.checkSelfPermission(this@MainActivity, permission) == PackageManager.PERMISSION_DENIED) {
-//            // Requesting the permission
-//            ActivityCompat.requestPermissions(this@MainActivity, arrayOf(permission), requestCode)
-//        } else {
-//            Toast.makeText(this@MainActivity, "Permission already granted", Toast.LENGTH_SHORT).show()
-//        }
-//   }
 
 @Composable
 fun ArticleCard(article: ArticleItem, clickAction: () -> Unit) {
@@ -123,17 +121,13 @@ fun ArticleCard(article: ArticleItem, clickAction: () -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppBar() {
+fun AppBar(navController: NavHostController) {
     CenterAlignedTopAppBar(
         title = { Image(painterResource(id = R.drawable.pivot_logo), contentDescription = null) },
-        navigationIcon = { Icon(Icons.Default.Home, contentDescription=null, Modifier.padding(12.dp)) },
+        navigationIcon = { Icon(Icons.Default.Settings, contentDescription=null, Modifier.padding(12.dp).clickable {
+            navController.navigate("userSettings")
+        }) },
 //        modifier = Modifier.padding(8.dp)
 //        backgroundColor = MaterialTheme.colorScheme.primary
     )
 }
-
-//@Preview(showBackground = true)
-//@Composable
-//fun FeedScreenPreview() {
-//    FeedScreen()
-//}

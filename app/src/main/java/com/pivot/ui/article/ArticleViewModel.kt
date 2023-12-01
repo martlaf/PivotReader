@@ -8,7 +8,7 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.AP
 import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
-import com.pivot.base.BaseApplication
+import com.pivot.ReaderApplication
 import com.pivot.data.ArticleItem
 import com.pivot.data.ArticlesRepository
 import kotlinx.coroutines.Dispatchers
@@ -43,7 +43,7 @@ class ArticleViewModel(articlesRepository: ArticlesRepository, savedStateHandle:
                 val savedStateHandle = extras.createSavedStateHandle()
 
                 return ArticleViewModel(
-                    (application as BaseApplication).container.articlesRepository,
+                    (application as ReaderApplication).container.articlesRepository,
                     savedStateHandle,
                 ) as T
             }

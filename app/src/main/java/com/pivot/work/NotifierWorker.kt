@@ -6,14 +6,14 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.work.Worker
 import androidx.work.WorkerParameters
-import com.pivot.base.BaseApplication
-import com.pivot.MainActivity
+import com.pivot.ReaderApplication
 import com.pivot.reader.R
 
 class NotifierWorker(
@@ -23,7 +23,8 @@ class NotifierWorker(
 
     @SuppressLint("MissingPermission")
     override fun doWork(): Result {
-        val intent = Intent(applicationContext, MainActivity::class.java).apply {
+        val articleId = inputData.getInt(idKey, -1)
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("app://pivot.quebec/?p=$articleId")).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
 
@@ -31,14 +32,25 @@ class NotifierWorker(
             applicationContext, 0, intent, PendingIntent.FLAG_IMMUTABLE
         )
 
-        val articleId = inputData.getInt(idKey, -1)
+//        val deepLinkIntent = NavDeepLinkBuilder(applicationContext)
+//            .setGraph()
+//            .setDestination("article/$articleId")
+//            .createPendingIntent()
+//            .setGraph(R.navigation.nav_graph)
+//            .setDestination(R.id.articleScreen)
+//            .setArguments(
+//                ArticleScreenArgs.Builder(articleId).build().toBundle()
+//            )
+//            .createPendingIntent()
 
-        val body = "Article $articleId came out!"
-        val builder = NotificationCompat.Builder(applicationContext, BaseApplication.CHANNEL_ID)
+
+//        val body = "Article $articleId came out!"
+        val notificationTitle = "Pivot"
+        val builder = NotificationCompat.Builder(applicationContext, ReaderApplication.CHANNEL_ID)
             .setSmallIcon(R.drawable.logotype_principal_foreground)
-            .setContentTitle(inputData.getString(titleKey))
-            .setContentText(body)
-            .setStyle(NotificationCompat.BigTextStyle().bigText(body))
+            .setContentTitle(notificationTitle)
+            .setContentText(inputData.getString(titleKey))
+            .setStyle(NotificationCompat.BigTextStyle().bigText(inputData.getString(titleKey)))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)

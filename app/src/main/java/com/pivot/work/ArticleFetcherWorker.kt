@@ -2,12 +2,13 @@ package com.pivot.work
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.util.Log
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
-import com.pivot.base.BaseApplication
+import com.pivot.ReaderApplication
 import com.pivot.rss.RssClient
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -22,7 +23,7 @@ class ArticleFetcherWorker(
 
     @SuppressLint("MissingPermission")
     override fun doWork(): Result {
-        val application = applicationContext as BaseApplication
+        val application = applicationContext as ReaderApplication
         val articlesRepository = application.container.articlesRepository
 
         val workManager = WorkManager.getInstance(application)
@@ -30,10 +31,15 @@ class ArticleFetcherWorker(
 
         coroutineScope.launch {
             val newArticlesList = RssClient().fetchRssData()
-            val knownArticlesList = articlesRepository.getAllArticles()
-            val unknownArticlesList = newArticlesList.subtract(knownArticlesList.toSet())
+            val knownIds = articlesRepository.getAllArticles().map { it.id }.toSet()
+            val unknownArticles = newArticlesList.filterNot { it.id in knownIds }
 
-            for (article in unknownArticlesList) {
+            for (id in knownIds) {
+                Log.d("ArticleFetcher", "Already know article $id")
+            }
+
+            for (article in unknownArticles) {
+                Log.d("ArticleFetcher", "Got new article ${article.id}")
                 myWorkRequestBuilder.setInputData(
                     workDataOf(
                         "ID" to article.id,
