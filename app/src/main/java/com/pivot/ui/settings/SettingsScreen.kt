@@ -16,6 +16,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -28,16 +29,19 @@ import com.pivot.reader.R
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(navController: NavHostController, viewModel: SettingsViewModel = viewModel(factory=SettingsViewModel.Factory)) {
-    val activity = LocalContext.current as Activity
-    requestPermissions(activity,
-        arrayOf(Manifest.permission.POST_NOTIFICATIONS),
-        0,
-    )
+fun SettingsScreen(navController: NavHostController) {
+    val viewModel: SettingsViewModel = viewModel(factory=SettingsViewModel.Factory)
+
+    val settings = viewModel.settingsState.collectAsState().value
+//    val activity = LocalContext.current as Activity
+//    requestPermissions(activity,
+//        arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+//        0,
+//    )
 
     Scaffold(topBar = { AppBar(navController) }) { innerPadding ->
         Surface(modifier=Modifier.padding(innerPadding)) {
-            Column { viewModel.settingsState.value["notifications_enabled"]?.displayName?.let {
+            Column { settings["notifications_enabled"]?.displayName?.let {
                 Text(
                     it
                 )

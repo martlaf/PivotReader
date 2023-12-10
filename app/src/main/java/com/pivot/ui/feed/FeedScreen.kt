@@ -10,8 +10,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeightIn
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -50,15 +52,14 @@ fun FeedScreen(navController: NavHostController){
     val viewModel: FeedViewModel = viewModel(factory=FeedViewModel.Factory)
 
     val activity = LocalContext.current as Activity
-    requestPermissions(activity,
-        arrayOf(Manifest.permission.POST_NOTIFICATIONS),
-        0,
-    )
+//    requestPermissions(activity,
+//        arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+//        0,
+//    )
 
     Scaffold(topBar = { AppBar(navController) }) { innerPadding ->
         Surface(modifier=Modifier.padding(innerPadding)) {
             Column {
-                NotifierButton()
                 LazyColumn(verticalArrangement = Arrangement.SpaceBetween){
                     items(viewModel.feedState.value) {article ->
                         ArticleCard(article){
@@ -71,6 +72,7 @@ fun FeedScreen(navController: NavHostController){
     }
 }
 
+// will remove once permission request moved alongside notification setting activation
 @Composable
 fun NotifierButton() {
     val application = LocalContext.current.applicationContext as Application
@@ -100,9 +102,16 @@ fun NotifierButton() {
 fun ArticleCard(article: ArticleItem, clickAction: () -> Unit) {
     Card(modifier= Modifier
         .padding(8.dp)
-        .clickable(onClick = { clickAction.invoke() })) {
+        .fillMaxWidth()
+        .clickable(onClick = { clickAction.invoke() })
+    ) {
         Row {
-            Card(modifier=Modifier.padding(8.dp).fillMaxHeight().requiredHeightIn(50.dp)) {
+            Card(modifier=Modifier
+                .padding(8.dp)
+                .fillMaxHeight()
+                .requiredHeightIn(50.dp)
+                .fillMaxWidth(0.3F)
+            ) {
                 AsyncImage(
                     model = article.imageUrl,
                     contentDescription = null,

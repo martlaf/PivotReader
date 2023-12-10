@@ -1,5 +1,6 @@
 package com.pivot.ui.settings
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -10,15 +11,19 @@ import com.pivot.ReaderApplication
 import com.pivot.data.AppContainer
 import com.pivot.data.UserSetting
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 class SettingsViewModel(container: AppContainer): ViewModel() {
-    val settingsState = mutableStateOf(value=mutableMapOf<String, UserSetting>())
+    val settingsState = MutableStateFlow<MutableMap<String, UserSetting>>(mutableMapOf<String, UserSetting>())
 
     init {
+        Log.d("SettingsViewModel", "In SettingsViewModel")
         viewModelScope.launch(Dispatchers.IO){
-            val settingsList = container.settingsRepository.getByType("app")
+            Log.d("SettingsViewModel", "In coroutine")
+            val settingsList = container.settingsRepository.getAll()
             for (item in settingsList) {
+                Log.d("SettingsViewModel", "Found setting ${item.key}")
                 settingsState.value[item.key] = item
             }
         }

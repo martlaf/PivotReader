@@ -1,6 +1,7 @@
 package com.pivot.data
 
 import android.content.Context
+import android.util.Log
 import androidx.room.Database
 import androidx.room.Room.databaseBuilder
 import androidx.room.RoomDatabase
@@ -17,7 +18,6 @@ abstract class PivotReaderDatabase: RoomDatabase() {
     companion object {
         @Volatile
         private var Instance: PivotReaderDatabase? = null
-        private val coroutineScope = CoroutineScope(Dispatchers.IO)
 
         fun getDatabase(context: Context): PivotReaderDatabase =
             Instance ?: synchronized(this) {
@@ -27,13 +27,14 @@ abstract class PivotReaderDatabase: RoomDatabase() {
         private fun buildDatabase(context: Context) =
                 databaseBuilder(context.applicationContext,
                         PivotReaderDatabase::class.java, "pivot_reader_database")
-                        // prepopulate the database after onCreate was called
+                        // prepopulate the database on creation
                         .addCallback(object : Callback() {
                             override fun onCreate(db: SupportSQLiteDatabase) {
                                 super.onCreate(db)
-                                // insert the data on the IO Thread
-                                coroutineScope.launch {
-                                    getDatabase(context).userSettingDao().insertSettings(DEFAULT_SETTINGS)
+                                val scope = CoroutineScope(Dispatchers.IO)
+                                Log.d("DB Callback", "Launching insert of default settings")
+                                scope.launch {
+                                    getDatabase(context).userSettingDao().insertSettings(DEFAULT_SETTINGS.values)
                                 }
                             }
                         })

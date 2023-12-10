@@ -8,8 +8,8 @@ import androidx.room.Query
 import androidx.room.Update
 
 
-val DEFAULT_SETTINGS = listOf(
-    UserSetting("notifications_enabled", "Activer les notifications", "false", "bool")
+val DEFAULT_SETTINGS = mapOf(
+    "notifications_enabled" to UserSetting("notifications_enabled", "Activer les notifications", "false", "user")
 )
 
 @Entity(tableName = "settings")
@@ -25,10 +25,12 @@ data class UserSetting (
 interface UserSettingDao {
     @Query("select * from settings where type = :type")
     fun getByType(type: String): List<UserSetting>
+    @Query("select * from settings")
+    fun getAll(): List<UserSetting>
 
     @Update
     fun update(setting: UserSetting)
 
     @Insert
-    fun insertSettings(settings: List<UserSetting>)
+    fun insertSettings(settings: Collection<UserSetting>)
 }
